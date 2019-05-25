@@ -34,6 +34,8 @@ class URController():
     # connection
     PORT = 30003
 
+    socket = None
+
     # data
     data = [{"size": 4 , "value": None},        #  0 Message Size
             {"size": 8 , "value": None},        #  1 Time
@@ -73,6 +75,18 @@ class URController():
             {"size": 8 , "value": None}         # 35 program state
            ]
 
+    def init_socket(self):
+        if self.socket == None:
+            try:
+                print("Initializing connection to robot... ", end="")
+                self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                self.socket.settimeout(2.0)
+                self.socket.connect((self.HOST_IP, 30003))
+                print("done.")
+            except socket.error as socketError:
+                print(socketError)
+                self.socket = None
+
     def __init__(self, HOST_IP):
 
         """
@@ -85,7 +99,12 @@ class URController():
         #self.read_packages_acyclic()
         self.isReading = False
         self.cyclic = False
+
+        self.init_socket()
         
+    def __del__(self):
+        if self.socket != None:
+            self.socket.close()
 
     def start_cyclic_reading_session(self):
 
@@ -463,6 +482,27 @@ class URController():
 
 # --------------------------------- SETTER FUNCTIONS -----------------------------------
 
+    def set_digital_output(self, bit, state):
+        cmd = "set_standard_digital_out("
+        cmd += str(bit)
+        if state:
+            cmd += ",True)"
+        else:
+            cmd += ",False)"
+        self.execute_script_command(cmd)
+
+    # def set_digital_outputs(self , list_of_bits):
+
+    #     """Sets the digital outputs according to the (list_of_bits)."""
+
+    #     # cut out list of bits
+    #     list_of_bits = list_of_bits[:8] if len(list_of_bits) > 8 else list_of_bits
+    #     cmds = ""
+    #     for i in range(len(list_of_bits)):
+    #         if list_of_bits[i] == 0: cmds += "set_standard_digital_out("+str(i)+",False)\n"
+    #         elif list_of_bits[i] == 1: cmds += "set_standard_digital_out("+str(i)+",True)\n"
+    #     self.execute_script_command(cmds)
+
     def set_digital_outputs(self , list_of_bits):
 
         """Sets the digital outputs according to the (list_of_bits)."""
@@ -473,6 +513,7 @@ class URController():
         for i in range(len(list_of_bits)):
             if list_of_bits[i] == 0: self.execute_script_command("set_standard_digital_out("+str(i)+",False)")
             elif list_of_bits[i] == 1: self.execute_script_command("set_standard_digital_out("+str(i)+",True)")
+
 
     def set_tool_digital_outputs(self , list_of_bits):
 
@@ -617,26 +658,44 @@ class URController():
 
         """Sends the UR-script command (cmd) to be executed."""
 
-        cmd_socket = None
+        if self.socket == None:
+            self.init_socket()
 
         try:
-            # open up a new socket for the communication
-            cmd_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-            # connect to UR with port 30003
-            cmd_socket.connect((self.HOST_IP, 30003))
-
             cmd += "\n"
 
             # send command
-            cmd_socket.send(cmd.encode())
+            self.socket.send(cmd.encode())
+
+            time.sleep(0.025)
 
         except socket.error as socketError:
             print(socketError)
-        finally:
 
-            # always close the connection after sending command
-            cmd_socket.close()
+    # def execute_script_command(self, cmd):
+
+    #     """Sends the UR-script command (cmd) to be executed."""
+
+    #     cmd_socket = None
+
+    #     try:
+    #         # open up a new socket for the communication
+    #         cmd_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    #         # connect to UR with port 30003
+    #         cmd_socket.connect((self.HOST_IP, 30003))
+
+    #         cmd += "\n"
+
+    #         # send command
+    #         cmd_socket.send(cmd.encode())
+
+    #     except socket.error as socketError:
+    #         print(socketError)
+    #     finally:
+
+    #         # always close the connection after sending command
+    #         cmd_socket.close()
 
     def get_list_of_six_values(self , index):
 
