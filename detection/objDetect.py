@@ -18,8 +18,8 @@ def objExtraction(src):
 def create_bolb_detectoer():
     params = cv2.SimpleBlobDetector_Params()
     params.filterByArea = True
-    params.minArea = 30
-    params.maxArea = 1000
+    params.minArea = 110
+    params.maxArea = 500
     #params.minThreshold = 10
     #params.maxThreshold = 255
     params.filterByConvexity = True
@@ -37,6 +37,7 @@ def blobDetector(src, roi, bin_img):
     #print(keypoints)
     cv2.imshow("Keypointsimg", im_with_keypoints)
     return keypoints
+
 
 def do_obj_detection(src, roi, bin_img):
     #laplace = getLines(src)

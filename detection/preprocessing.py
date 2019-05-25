@@ -13,7 +13,7 @@ def get_roi(img):
     w = point2[0] - point1[0] 
     h = point2[1] - point1[1]
     #reg_im = cv2.rectangle(img, point1, point2, (255,0,0), 3 )
-
+    
     roi = img[y:y+h, x:x+w] 
     cv2.imshow('roi', roi)
     return roi
@@ -53,8 +53,7 @@ def do_preprocessing(img):
 
     opening = denosing(bin_img)
 
-    cv2.imshow('binary image', bin_img)
-    cv2.imshow('morphological', opening)
+    #cv2.imshow('binary image', bin_img)
+    #cv2.imshow('morphological', opening)
 
     return opening, bin_img
-    

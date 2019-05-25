@@ -7,6 +7,8 @@ import cv2
 import numpy
 import preprocessing as pre
 import objDetect as det
+import getTowerMatrix as TM
+import getTowerCoordinates as TC
 
 
 def get_bits_per_pixel(color_mode):
@@ -155,9 +157,11 @@ class FrameThread(Thread):
 
         processed, bin_img = pre.do_preprocessing(roi)
 
+        Keypoints = det.do_obj_detection(processed, roi, bin_img)
 
-        detected = det.do_obj_detection(processed, roi, bin_img)
+        #print(len(detected)) #debug: element count
 
+        TM.getTowerMatrix(Keypoints)
 
         #output
         cv2.imshow('test', data)
