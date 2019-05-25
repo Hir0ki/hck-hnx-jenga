@@ -9,8 +9,12 @@ def objExtraction(src):
     cv2.imshow("objekte", cont_img)
     return contours
 
+def getLines(src):
+    laplace = cv2.Laplacian(src,cv2.CV_64F)
+    return laplace
+
 def do_obj_detection(src):
-    laplace = cv2.Laplacian(src,3)
+    laplace = getLines(src)
     cv2.imshow("conturen", laplace)
     #contours = objExtraction(laplace)
     return laplace

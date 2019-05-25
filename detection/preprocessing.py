@@ -32,7 +32,8 @@ def filtering(img):
 
 def threshholing(img):
     #binary
-    bin_image = cv2.inRange(img, 65, 100 )
+    bin_image = cv2.inRange(img, 60, 93 )
+    #bin_image = cv2.inRange(img, 7, 25 )
     return bin_image
 
 def denosing(img):
