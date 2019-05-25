@@ -1,0 +1,46 @@
+import numpy as np
+import cv2 
+
+
+
+def get_roi(image):
+    pass
+
+def get_hue(img):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    hsv_split = cv2.split(hsv)
+    hue = hsv_split[0]
+    return hue
+
+def filtering(img):
+    #blur 
+    return cv2.medianBlur( img, 3)
+
+
+
+def threshholing(img):
+    #binary
+    bin_image = cv2.inRange(img, 65, 100 )
+    return bin_image
+
+def denosing(img):
+
+    #morpholigical stuff
+    kernel = np.ones((3,3),np.uint8)
+    opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
+    return opening
+
+def do_preprossing(img):
+    
+    hue =  get_hue(img)
+
+    median = filtering(hue)
+
+    bin_img = threshholing(median)
+
+    opening = denosing(bin_img)
+
+    cv2.imshow('mask', bin_img)
+    cv2.imshow('reg', opening)
+
+    return opening

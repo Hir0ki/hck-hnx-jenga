@@ -5,6 +5,8 @@ from threading import Thread
 import timeit
 import cv2
 import numpy
+import preprocessing as pre
+
 
 def get_bits_per_pixel(color_mode):
     """
@@ -107,6 +109,9 @@ class Rect:
         self.height = height
 
 
+def hsv_tranfo():
+    pass
+
 
 class FrameThread(Thread):
     def __init__(self, cam, views=None, copy=True):
@@ -143,6 +148,21 @@ class FrameThread(Thread):
         data = image_data.as_1d_image()
         image_data.unlock()
         # do things with image_data
+        data = cv2.resize(data, (int(data.shape[1] / 4), int( data.shape[0] / 4 )))
+    
+        #rectangle 
+        point1 = (160, 50 )
+        point2 = (400, 470 )
+        reg_im = cv2.rectangle(data, point1, point2, (255,0,0), 3 )
+
+
+        pre.do_preprossing(data)
+
+
+        
+
+
+        #output
         cv2.imshow('test', data)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             return True
