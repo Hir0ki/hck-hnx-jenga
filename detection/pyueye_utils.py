@@ -6,6 +6,7 @@ import timeit
 import cv2
 import numpy
 import preprocessing as pre
+import objDetect as det
 
 
 def get_bits_per_pixel(color_mode):
@@ -138,7 +139,7 @@ class FrameThread(Thread):
                     break
                 t = timeit.default_timer()
                 fps = 1/(t - self.t_old)
-                print(fps, ret)
+                #print(fps, ret)
                 self.t_old = t
 
             
@@ -152,10 +153,10 @@ class FrameThread(Thread):
     
         roi = pre.get_roi(data)
 
-        pre.do_preprossing(roi)
+        processed = pre.do_preprossing(roi)
 
 
-        
+        detected = det.do_obj_detection(processed)
 
 
         #output

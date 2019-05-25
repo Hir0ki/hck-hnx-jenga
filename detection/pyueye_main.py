@@ -24,7 +24,7 @@ def main():
     thread = FrameThread(cam)
     thread.start()
 
-    time.sleep(60) 
+    time.sleep(180) 
 
     thread.stop()
     thread.join()
