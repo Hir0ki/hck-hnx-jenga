@@ -153,10 +153,10 @@ class FrameThread(Thread):
     
         roi = pre.get_roi(data)
 
-        processed = pre.do_preprossing(roi)
+        processed, bin_img = pre.do_preprocessing(roi)
 
 
-        detected = det.do_obj_detection(processed)
+        detected = det.do_obj_detection(processed, roi, bin_img)
 
 
         #output

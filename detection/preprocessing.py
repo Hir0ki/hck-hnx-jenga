@@ -43,7 +43,7 @@ def denosing(img):
     opening = cv2.morphologyEx(img, cv2.MORPH_OPEN, kernel)
     return opening
 
-def do_preprossing(img):
+def do_preprocessing(img):
     
     hue =  get_hue(img)
 
@@ -53,7 +53,8 @@ def do_preprossing(img):
 
     opening = denosing(bin_img)
 
-    cv2.imshow('mask', bin_img)
-    cv2.imshow('reg', opening)
+    cv2.imshow('binary image', bin_img)
+    cv2.imshow('morphological', opening)
 
-    return opening
+    return opening, bin_img
+    
