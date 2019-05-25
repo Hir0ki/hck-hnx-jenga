@@ -150,13 +150,9 @@ class FrameThread(Thread):
         # do things with image_data
         data = cv2.resize(data, (int(data.shape[1] / 4), int( data.shape[0] / 4 )))
     
-        #rectangle 
-        point1 = (160, 50 )
-        point2 = (400, 470 )
-        reg_im = cv2.rectangle(data, point1, point2, (255,0,0), 3 )
+        roi = pre.get_roi(data)
 
-
-        pre.do_preprossing(data)
+        pre.do_preprossing(roi)
 
 
         

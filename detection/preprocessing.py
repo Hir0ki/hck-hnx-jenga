@@ -3,8 +3,20 @@ import cv2
 
 
 
-def get_roi(image):
-    pass
+def get_roi(img):
+    #rectangle 
+    point1 = (200, 0 )
+    point2 = (400, 500 )
+    
+    y = point1[1]
+    x = point1[0] 
+    w = point2[0] - point1[0] 
+    h = point2[1] - point1[1]
+    #reg_im = cv2.rectangle(img, point1, point2, (255,0,0), 3 )
+
+    roi = img[y:y+h, x:x+w] 
+    cv2.imshow('roi', roi)
+    return roi
 
 def get_hue(img):
     hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
