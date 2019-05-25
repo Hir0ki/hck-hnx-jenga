@@ -1,5 +1,7 @@
 venv 
 .vscode 
 __pycahde__
-.jpeg
-.png
+*.jpeg
+*.png
+
+*.pyc
