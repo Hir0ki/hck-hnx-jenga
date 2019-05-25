@@ -40,4 +40,3 @@ class TowerMatrix():
         # neues bild, thread starten und x-mal laufen lassen, dann stop bis nächster aufruf
         pass
 
-    
