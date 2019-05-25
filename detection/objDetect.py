@@ -15,15 +15,22 @@ def objExtraction(src):
     cv2.imshow("conturen",src)
     return contours
 
-def blobDetector(src, roi, bin_img):
-    # obsolete
+def create_bolb_detectoer():
     params = cv2.SimpleBlobDetector_Params()
     params.filterByArea = True
-    params.minArea = 150
-    params.maxArea = 500
+    params.minArea = 30
+    params.maxArea = 1000
+    #params.minThreshold = 10
+    #params.maxThreshold = 255
+    params.filterByConvexity = True
+    params.minConvexity = 0.87  
     params.filterByColor = True
     params.blobColor  = 255
-    detector = cv2.SimpleBlobDetector_create(params)
+    return cv2.SimpleBlobDetector_create(params)
+
+def blobDetector(src, roi, bin_img):
+    # obsolete
+    detector = create_bolb_detectoer()
     keypoints = detector.detect(bin_img)
     im_with_keypoints = cv2.drawKeypoints(src, keypoints, np.zeros([]), (0,0,255), 
     cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -32,7 +39,7 @@ def blobDetector(src, roi, bin_img):
     return keypoints
 
 def do_obj_detection(src, roi, bin_img):
-    laplace = getLines(src)
-    contour_img = objExtraction(laplace)
-    #blobimg =  blobDetector(src, roi, bin_img)
-    return contour_img
+    #laplace = getLines(src)
+    #contour_img = objExtraction(laplace)
+    blobimg =  blobDetector(src, roi, bin_img)
+    return blobimg
