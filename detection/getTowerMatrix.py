@@ -11,8 +11,6 @@ def translateMatrix(Keypoints):
 
 def sortPoints(Matrix):
     sorted_raw = np.sort(Matrix)
-    
-
 
 
 
@@ -23,4 +21,23 @@ def getTowerMatrix(Keypoints):
 
     npMatrixSorted = sortPoints(npMatrix)
 
+
+    TowerMatrix = 0
+
     return TowerMatrix
+
+
+class TowerMatrix():
+    def getRemaining(self):
+        # return complete matrix
+        pass
+
+    def getRowStatus(self, RowID):
+        # belegungsplan
+        pass
+    
+    def getNextMatrix(self):
+        # neues bild, thread starten und x-mal laufen lassen, dann stop bis nächster aufruf
+        pass
+
+    
