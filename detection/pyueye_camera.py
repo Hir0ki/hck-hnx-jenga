@@ -42,7 +42,7 @@ class Camera:
         ueye.is_InitImageQueue(self.h_cam, 0)
 
     def init(self):
-        ret = ueye.is_InitCamera(self.h_cam, None)
+        ret = ueye.is_InitCamera(self.h_cam,None)
         if ret != ueye.IS_SUCCESS:
             self.h_cam = None
             raise uEyeException(ret)
