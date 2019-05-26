@@ -5,10 +5,7 @@ from threading import Thread
 import timeit
 import cv2
 import numpy
-import preprocessing as pre
-import objDetect as det
-import getTowerMatrix as TM
-import getTowerCoordinates as TC
+from detection import preprocessing as pre, objDetect as det, getTowerMatrix as TM, getTowerCoordinates as TC
 
 
 def get_bits_per_pixel(color_mode):
@@ -116,20 +113,21 @@ def hsv_tranfo():
     pass
 
 
-class FrameThread(Thread):
+class FrameThread():
     def __init__(self, cam, views=None, copy=True):
-        super(FrameThread, self).__init__()
         self.timeout = 1000
         self.cam = cam
         self.running = True
         self.views = views
         self.copy = copy
         self.t_old = timeit.default_timer()
+        self.rows = []
 
         cam.set_full_auto()
 
     def run(self):
-        while self.running:
+        count = 0
+        while count < 10:
 
             img_buffer = ImageBuffer()
             ret = ueye.is_WaitForNextImage(self.cam.handle(),
@@ -144,7 +142,8 @@ class FrameThread(Thread):
                 #print(fps, ret)
                 self.t_old = t
 
-            
+                count += 1
+        return self.rows
             #break
 
     def notify(self, image_data):
@@ -161,7 +160,12 @@ class FrameThread(Thread):
 
         #print(len(detected)) #debug: element count
 
-        TM.getTowerMatrix(Keypoints)
+        rows = TM.getTowerMatrix(Keypoints)
+        if rows != None and rows != [] :
+            if len(rows) > len(self.rows):
+                self.rows = rows
+
+
 
         #output
         cv2.imshow('test', data)

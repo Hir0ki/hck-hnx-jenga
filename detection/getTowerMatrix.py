@@ -39,12 +39,10 @@ def getTowerMatrix(Keypoints):
     npMatrix = translateMatrix(Keypoints)
 
     rows = sortPoints(npMatrix)
+
     if rows != None:
-        print(len(rows))
 
-        TowerMatrix = 0
-
-        return TowerMatrix
+        return rows
 
 
 class TowerMatrix():

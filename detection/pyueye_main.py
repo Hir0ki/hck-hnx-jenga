@@ -1,38 +1,43 @@
 #!/usr/bin/env python
 
 from pyueye import ueye
-from pyueye_camera import Camera
-from pyueye_utils import FrameThread
+from detection.pyueye_camera import Camera
+from detection.pyueye_utils import FrameThread
 
 import time
 
 import cv2
 import numpy as np
 
-def main():
-
-    # camera class to simplify uEye API access
-    cam = Camera()
-    cam.init()
-#    cam.set_colormode(ueye.IS_CM_BGR8_PACKED)
-#    cam.set_aoi(0,0, 640, 480)
-
-    cam.alloc()
-    cam.capture_video()
-
-    # a thread that waits for new images and processes all connected views
-    thread = FrameThread(cam)
-    thread.start()
-
-    time.sleep(180) 
-
-    thread.stop()
-    thread.join()
-    cv2.destroyAllWindows()
-    cam.stop_video()
-    cam.exit()
-
-if __name__ == "__main__":
-    main()
 
 
+class Picture():
+
+    def __init__(self):
+        self.cam = Camera()
+        self.cam.init()
+
+        self.cam.alloc()
+        self.cam.capture_video()
+
+
+    def get_next_frame(self):
+        Frame = FrameThread(self.cam)
+        rows = Frame.run()
+        
+        new_rows = []
+        for row in rows: 
+            new_row = []
+            for entry in row:
+                new_row.append(True)
+            new_rows.append(new_row)
+
+        return new_rows
+
+        
+
+    def shutdown(self):
+
+        cv2.destroyAllWindows()
+        self.cam.stop_video()
+        self.cam.exit()
