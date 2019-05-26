@@ -10,6 +10,7 @@ rad = math.radians
 
 logging.basicConfig(level=logging.INFO)
 
+
 class BotControl():
     running = True
     bot = None
@@ -18,7 +19,8 @@ class BotControl():
     a = 0.1
     poke_v = 0.025
 
-    max_height = 0.260                      # max height robot arm can reach in downfacing orientation
+    # max height robot arm can reach in downfacing orientation
+    max_height = 0.260
     tower_pos = (0.3713, -0.0330, 0.0414)   # upper corner of Jenga tower
     init_pos = (0.371 - 0.0375, -0.0330 + 0.0375, max_height)
     jenga_piece = (0.075, 0.025, 0.015)     # dimensions of Jenga piece
@@ -122,7 +124,6 @@ class BotControl():
         orient = target[-3:]    # get orientation from target
         self.move_to(pos, orient)
 
-
     def poke_piece(self, x, z):
         # cur_pose = self.bot.get_pose().pose_vector
         target = self.calc_poke_pos(x, z)
@@ -131,11 +132,34 @@ class BotControl():
         orient = target[-3:]    # get orientation from target
 
         if z % 2 == 0:   # even tier
-            pos[0] -= self.poke_distance
+            self.bot.translate_tool(
+                (-self.poke_distance, 0, 0), self.a, self.poke_v, wait=False)
+            # pos[0] -= self.poke_distance
         else:            # odd tier
-            pos[1] += self.poke_distance
+            self.bot.translate_tool(
+                (0, self.poke_distance, 0), self.a, self.poke_v, wait=False)
+            # pos[1] += self.poke_distance
 
-        self.bot.move
+    # places piece on top of tower, assuming one is in gripper
+    def place_piece(self, x, z):
+        placement_safety_margin = 0.005         # 5mm safety margin for the outer pieces
+
+        target = self.calc_grab_pos(x, z)
+        pos = target[:3]        # get position from target
+        orient = target[-3:]    # get orientation from target
+
+        # calculate for one position above top layer
+        pos[2] += self.jenga_piece[2]
+
+        if z % 2 == 0:   # even tier
+            pos[0] += self.gripper_distance
+            pos[1] -= (1 - x) * placement_safety_margin
+        else:            # odd tier
+            pos[1] -= self.gripper_distance
+            pos[0] += (1 - x) * placement_safety_margin
+
+        self.move_to(pos, orient)
+        self.open_gripper()
 
     def home(self):
         self.bot.z = max_height
@@ -228,7 +252,7 @@ class BotControl():
 
         self.open_gripper()
         self.move_to(list(self.init_pos),
-                        list(self.grip_angle_straight))
+                     list(self.grip_angle_straight))
         return
 
 
