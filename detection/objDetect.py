@@ -18,7 +18,7 @@ def objExtraction(src):
 def create_bolb_detectoer():
     params = cv2.SimpleBlobDetector_Params()
     params.filterByArea = True
-    params.minArea = 110
+    params.minArea = 90
     params.maxArea = 500
     #params.minThreshold = 10
     #params.maxThreshold = 255

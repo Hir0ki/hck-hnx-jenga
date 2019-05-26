@@ -1,3 +1,4 @@
 opencv-python
 pyueye
 tinkerforge
+urx

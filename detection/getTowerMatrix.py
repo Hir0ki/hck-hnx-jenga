@@ -10,21 +10,41 @@ def translateMatrix(Keypoints):
     return npMatrix
 
 def sortPoints(Matrix):
-    sorted_raw = np.sort(Matrix)
+    rows = []
+    if Matrix != []:
+        mat_sy = np.sort(Matrix, 1)
 
+        i = 0 
 
+        while i <= len(mat_sy):
+            i += 3
+            try:
+                rows.append([list(mat_sy[i]), list(mat_sy[i+1]), list(mat_sy[i+2])])
+            except IndexError:
+                try: 
+                    rows.append([list(mat_sy[i]), list(mat_sy[i+1])])
+                except IndexError:
+                    try:
+                        rows.append([list(mat_sy[i])])
+                    except IndexError:
+                        pass
+                        #print('rowng')
+           
+
+        return rows
 
 def getTowerMatrix(Keypoints):
     # sort point coordinates for x and y
 
     npMatrix = translateMatrix(Keypoints)
 
-    npMatrixSorted = sortPoints(npMatrix)
+    rows = sortPoints(npMatrix)
+    if rows != None:
+        print(len(rows))
 
+        TowerMatrix = 0
 
-    TowerMatrix = 0
-
-    return TowerMatrix
+        return TowerMatrix
 
 
 class TowerMatrix():
