@@ -188,13 +188,6 @@ class BotControl():
                 print(self.bot.secmon._parser.version)
                 print(self.bot.secmon._dict["RobotModeData"])
 
-    # def move_relative(self, relative, acc=self.a, vel=self.v):
-
-    # def set_orient(self, orient):
-    #     pos = self.bot.getl()[0:3]
-    #     pos.extend(orient)
-    #     self.bot.movex("movel", pos, self.a, self.v)
-
     def main(self):
         while self.running:
             try:
