@@ -13,11 +13,9 @@ def sortPoints(Matrix):
     rows = []
     if Matrix != []:
         mat_sy = np.sort(Matrix, 1)
-
         i = 0 
 
         while i <= len(mat_sy):
-            i += 3
             try:
                 rows.append([list(mat_sy[i]), list(mat_sy[i+1]), list(mat_sy[i+2])])
             except IndexError:
@@ -29,7 +27,7 @@ def sortPoints(Matrix):
                     except IndexError:
                         pass
                         #print('rowng')
-           
+            i += 3
 
         return rows
 

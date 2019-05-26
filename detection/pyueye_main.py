@@ -20,11 +20,14 @@ class Picture():
         self.cam.alloc()
         self.cam.capture_video()
 
+        # if we need more time for detection 
+        self.capture_time = 60
+
 
     def get_next_frame(self):
-        Frame = FrameThread(self.cam)
+        Frame = FrameThread(self.cam, self.capture_time)
         rows = Frame.run()
-        
+
         new_rows = []
         for row in rows: 
             new_row = []

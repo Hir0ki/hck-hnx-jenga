@@ -5,8 +5,7 @@ from threading import Thread
 import timeit
 import cv2
 import numpy
-from detection import preprocessing as pre, objDetect as det, getTowerMatrix as TM, getTowerCoordinates as TC
-
+from detection import preprocessing as pre, objDetect as det, getTowerMatrix as TM
 
 def get_bits_per_pixel(color_mode):
     """
@@ -114,20 +113,21 @@ def hsv_tranfo():
 
 
 class FrameThread():
-    def __init__(self, cam, views=None, copy=True):
+    def __init__(self, cam, capture_time, views=None, copy=True):
         self.timeout = 1000
         self.cam = cam
         self.running = True
         self.views = views
         self.copy = copy
         self.t_old = timeit.default_timer()
+        self.capture_time = capture_time
         self.rows = []
 
         cam.set_full_auto()
 
     def run(self):
         count = 0
-        while count < 10:
+        while count < self.capture_time:
 
             img_buffer = ImageBuffer()
             ret = ueye.is_WaitForNextImage(self.cam.handle(),
