@@ -16,13 +16,16 @@ class BotControl():
 
     v = 0.05
     a = 0.1
+    poke_v = 0.025
 
+    max_height = 0.260                      # max height robot arm can reach in downfacing orientation
     tower_pos = (0.3713, -0.0330, 0.0414)   # upper corner of Jenga tower
-    init_pos = (0.371 - 0.0375, -0.0330 + 0.0375, 0.260)
+    init_pos = (0.371 - 0.0375, -0.0330 + 0.0375, max_height)
     jenga_piece = (0.075, 0.025, 0.015)     # dimensions of Jenga piece
     gripper_distance = 0.025                # distance of gripper from tower edge
     poker_distance = 0.1                    # distance of poker from tower
-    poker_z_offset = -0.02
+    poker_z_offset = -0.02                  # compensate for higher poker mounting
+    poke_distance = 0.03                    # distance to move the piece
     grip_angle_straight = (-0.9218, 2.9975, 0.0018)
     grip_angle_top_left = (-2.5718, 1.4158, -0.3440)
     grip_angle_top_right = (0.8593, -2.9526, 0.4590)
@@ -99,6 +102,46 @@ class BotControl():
         else:            # odd tier
             pos[1] += self.jenga_piece[0]
         self.move_to(pos, orient)  # pull out piece
+
+    def descend_to_poke(self, x, z):
+        cur_pose = self.bot.get_pose().pose_vector
+        target = self.calc_poke_pos(x, z)
+
+        pos = target[:3]        # get position from target
+        orient = target[-3:]    # get orientation from target
+
+        pos[2] = cur_pose[2]    # stay on same z height
+        self.move_to(pos, orient)
+
+        pos[2] = target[2]      # descend to target height
+        self.move_to(pos, orient)
+
+    def retract_poke(self, x, z):
+        target = self.calc_poke_pos(x, z)
+        pos = target[:3]        # get position from target
+        orient = target[-3:]    # get orientation from target
+        self.move_to(pos, orient)
+
+
+    def poke_piece(self, x, z):
+        # cur_pose = self.bot.get_pose().pose_vector
+        target = self.calc_poke_pos(x, z)
+
+        pos = target[:3]        # get position from target
+        orient = target[-3:]    # get orientation from target
+
+        if z % 2 == 0:   # even tier
+            pos[0] -= self.poke_distance
+        else:            # odd tier
+            pos[1] += self.poke_distance
+
+        self.bot.move
+
+    def home(self):
+        self.bot.z = max_height
+
+    def stop(self):
+        self.bot.stop()
 
     def to_pose(self, pos, orient):
         target = pos.copy()
