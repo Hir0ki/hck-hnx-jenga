@@ -1,8 +1,8 @@
 import logging
 import traceback
 import threading
+import time
 
-import keyboard
 import bot_control
 ctrl = bot_control.BotControl()
 # ctrl = None
@@ -31,28 +31,30 @@ try:
 
         if(sel == ""):
             ctrl.stop()
+            pass
+        else:
+            sel = int(sel)
 
-        sel = int(sel)
-
-        if(sel == 1):
-            input_str = input("X, Z: ")
-            lst = input_str.split(",")
-            print(lst)
-            z = int(lst[1])
-            x = int(lst[0])
-        elif(sel == 2):
-            ctrl.home()
-        elif(sel == 3):
-            ctrl.descend_to_poke(x, z)
-        elif(sel == 4):
-            ctrl.poke_piece(x, z)
-        elif(sel == 5):
-            ctrl.retract_poke(x, z)
-        elif(sel == 6):
-            ctrl.grab_piece(x, z)
-        elif(sel == 7):
-            ctrl.place_piece(x, z)
+            if(sel == 1):
+                input_str = input("X, Z: ")
+                lst = input_str.split(",")
+                print(lst)
+                z = int(lst[1])
+                x = int(lst[0])
+            elif(sel == 2):
+                ctrl.home()
+            elif(sel == 3):
+                ctrl.descend_to_poke(x, z)
+            elif(sel == 4):
+                ctrl.poke_piece(x, z)
+            elif(sel == 5):
+                ctrl.retract_poke(x, z)
+            elif(sel == 6):
+                ctrl.grab_piece(x, z)
+            elif(sel == 7):
+                ctrl.place_piece(x, z)
 
 except Exception as e:
     running = False
     logging.error(traceback.format_exc())
+

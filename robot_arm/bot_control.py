@@ -15,44 +15,46 @@ class BotControl():
     running = True
     bot = None
 
-    v = 0.05
-    a = 0.1
-    poke_v = 0.025
+    v = 0.1
+    a = 0.4
+    poke_v = 0.005
 
     # max height robot arm can reach in downfacing orientation
-    max_height = 0.260
+    max_height = 0.220
     tower_pos = (0.3713, -0.0330, 0.0414)   # upper corner of Jenga tower
     init_pos = (0.371 - 0.0375, -0.0330 + 0.0375, max_height)
     jenga_piece = (0.075, 0.025, 0.015)     # dimensions of Jenga piece
     gripper_distance = 0.025                # distance of gripper from tower edge
-    poker_distance = 0.1                    # distance of poker from tower
+    poker_distance = 0.12                   # distance of poker from tower
     poker_z_offset = -0.02                  # compensate for higher poker mounting
     poke_distance = 0.03                    # distance to move the piece
     grip_angle_straight = (-0.9218, 2.9975, 0.0018)
     grip_angle_top_left = (-2.5718, 1.4158, -0.3440)
-    grip_angle_top_right = (0.8593, -2.9526, 0.4590)
+    grip_angle_top_right = (0.8574, -2.9063, 0.4124)
     poke_angle_bottom_right = (-0.8450, 3.0190, -0.0060)
     poke_angle_bottom_left = (1.5281, 2.7426, -0.0118)
 
     def close_gripper(self):
         self.bot.set_digital_out(0, 1)
         self.bot.set_digital_out(1, 0)
+        time.sleep(1)
 
     def open_gripper(self):
         self.bot.set_digital_out(0, 0)
         self.bot.set_digital_out(1, 1)
+        time.sleep(1)
 
     def calc_poke_pos(self, x_piece, z_tier):
         pos = list(self.tower_pos)
         orient = list(self.grip_angle_straight)
-        if z_tier % 2 == 0:   # even tier
+        if z_tier % 2 == 1:   # even tier
             pos[0] += self.poker_distance
-            pos[1] += self.jenga_piece[1] / 2
+            pos[1] += (self.jenga_piece[1] / 2) - 0.01
             pos[1] += self.jenga_piece[1] * x_piece
             orient = list(self.poke_angle_bottom_right)
         else:                   # uneven tier
             pos[1] -= self.poker_distance
-            pos[0] -= self.jenga_piece[1] / 2
+            pos[0] -= (self.jenga_piece[1] / 2) - 0.01
             pos[0] -= self.jenga_piece[1] * x_piece
             orient = list(self.poke_angle_bottom_left)
         pos[2] += self.jenga_piece[2] * z_tier
@@ -61,10 +63,13 @@ class BotControl():
         pos.extend(orient)
         return pos
 
+# prev ['0.3338', '0.0670', '0.1314', '0.8592', '-2.9526', '0.4590']
+# new  ['0.3310', '0.0676', '0.1326', '0.8592', '-2.9526', '0.4591']
+
     def calc_grab_pos(self, x_piece, z_tier):
         pos = list(self.tower_pos)
         orient = list(self.grip_angle_straight)
-        if z_tier % 2 == 0:   # even tier
+        if z_tier % 2 == 1:   # even tier
             pos[0] -= self.jenga_piece[0]
             pos[0] -= self.gripper_distance
             # pos[1] += self.jenga_piece[1] / 2
@@ -75,6 +80,7 @@ class BotControl():
         else:
             pos[1] += self.jenga_piece[0]
             pos[1] += self.gripper_distance
+            pos[0] -= 0.003
             pos[0] -= self.jenga_piece[1] / 2
             pos[0] -= self.jenga_piece[1] * x_piece
             orient = list(self.grip_angle_top_right)
@@ -99,11 +105,11 @@ class BotControl():
 
         self.close_gripper()
 
-        if z % 2 == 0:   # even tier
+        if z % 2 == 1:   # even tier
             pos[0] -= self.jenga_piece[0]
         else:            # odd tier
             pos[1] += self.jenga_piece[0]
-        self.move_to(pos, orient)  # pull out piece
+        self.move_to(pos, orient, vel=self.poke_v)  # pull out piece
 
     def descend_to_poke(self, x, z):
         cur_pose = self.bot.get_pose().pose_vector
@@ -131,14 +137,16 @@ class BotControl():
         pos = target[:3]        # get position from target
         orient = target[-3:]    # get orientation from target
 
-        if z % 2 == 0:   # even tier
-            self.bot.translate_tool(
-                (-self.poke_distance, 0, 0), self.a, self.poke_v, wait=False)
-            # pos[0] -= self.poke_distance
+        if z % 2 == 1:   # even tier
+            # self.bot.translate_tool(
+                # (-self.poke_distance, 0, 0), self.a, self.poke_v, wait=False)
+            pos[0] -= self.poke_distance
         else:            # odd tier
-            self.bot.translate_tool(
-                (0, self.poke_distance, 0), self.a, self.poke_v, wait=False)
-            # pos[1] += self.poke_distance
+            # self.bot.translate_tool(
+                # (0, self.poke_distance, 0), self.a, self.poke_v, wait=False)
+            pos[1] += self.poke_distance
+
+        self.move_to(pos, vel=self.poke_v, wait=False)
 
     # places piece on top of tower, assuming one is in gripper
     def place_piece(self, x, z):
@@ -151,18 +159,26 @@ class BotControl():
         # calculate for one position above top layer
         pos[2] += self.jenga_piece[2]
 
-        if z % 2 == 0:   # even tier
+        if z % 2 == 1:   # even tier
             pos[0] += self.gripper_distance
+            pos[0] -= 0.01
             pos[1] -= (1 - x) * placement_safety_margin
         else:            # odd tier
             pos[1] -= self.gripper_distance
+            pos[1] += 0.01
             pos[0] += (1 - x) * placement_safety_margin
 
         self.move_to(pos, orient)
         self.open_gripper()
 
     def home(self):
-        self.bot.z = max_height
+        cur_pose = self.bot.get_pose().pose_vector
+        pos = list(cur_pose[:3])        # get position from target
+        orient = list(cur_pose[3:6])    # get orientation from target
+        print(pos, orient)
+        pos[2] = self.max_height
+        self.move_to(pos, orient)
+        # self.bot.z = self.max_height
 
     def stop(self):
         self.bot.stop()
@@ -172,15 +188,15 @@ class BotControl():
         target.extend(orient)
         return target
 
-    def move_to(self, to_move_pos, to_move_orient=None, acc=a, vel=v):
-        if to_move_orient == None:
-            self.bot.set_pos(to_move_pos)
+    def move_to(self, to_move_pos, to_move_orient=None, acc=a, vel=v, wait=True):
+        if not wait:
+            self.bot.set_pos(to_move_pos, acc, vel, wait=False)
         else:
             to_move = self.to_pose(to_move_pos, to_move_orient)
             self.bot.set_pose(m3d.Transform(to_move), acc, vel, wait=False)
             time.sleep(0.05)
             try:
-                self.bot._wait_for_move(to_move, timeout=30)
+                self.bot._wait_for_move(to_move, timeout=2)
             except urx.urrobot.RobotException as e:
                 print(e)
                 print("ERROR, ROBOT STOPPED!!!!")
@@ -219,7 +235,7 @@ class BotControl():
             except urx.urrobot.RobotException as e:
                 print(e)
 
-    def __init__(self):
+    def __init__(self, move=True):
         try:
             self.bot = urx.Robot("192.168.0.11")
             self.bot.secmon.running = True
@@ -243,9 +259,11 @@ class BotControl():
             raise Exception("Could not connect to robot")
             return
 
-        self.open_gripper()
-        self.move_to(list(self.init_pos),
-                     list(self.grip_angle_straight))
+        if move:
+            self.open_gripper()
+            # self.move_to(list(self.init_pos),
+            #             list(self.grip_angle_straight))
+            self.home()
         return
 
 
